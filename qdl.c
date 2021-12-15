@@ -77,6 +77,7 @@ struct qdl_device {
 };
 
 bool qdl_debug;
+char *plat;
 
 static int detect_type(const char *xml_file)
 {
@@ -360,6 +361,23 @@ int qdl_write(struct qdl_device *qdl, const void *buf, size_t len)
 	size_t len_orig = len;
 	int n;
 
+	if (!strcmp(plat,"NL668")) {
+		if(len == 0) {
+			bulk.ep = qdl->out_ep;
+			bulk.len = 0;
+			bulk.data = data;
+			bulk.timeout = 1000;
+			
+			n = ioctl(qdl->fd, USBDEVFS_BULK, &bulk);
+			if(n != 0) {
+				fprintf(stderr,"ERROR: n = %d, errno = %d (%s)\n",
+					n, errno, strerror(errno));
+				return -1;
+			}
+			return 0;
+		}
+	}
+
 	while(len > 0) {
 		int xfer;
 		xfer = (len > qdl->out_maxpktsize) ? qdl->out_maxpktsize : len;
@@ -379,18 +397,20 @@ int qdl_write(struct qdl_device *qdl, const void *buf, size_t len)
 		len -= xfer;
 		data += xfer;
 	}
+		
+	if (strcmp(plat,"NL668")) {
+		if (len_orig % qdl->out_maxpktsize == 0) {
+			bulk.ep = qdl->out_ep;
+			bulk.len = 0;
+			bulk.data = NULL;
+			bulk.timeout = 1000;
 
-	if (len_orig % qdl->out_maxpktsize == 0) {
-		bulk.ep = qdl->out_ep;
-		bulk.len = 0;
-		bulk.data = NULL;
-		bulk.timeout = 1000;
+			n = ioctl(qdl->fd, USBDEVFS_BULK, &bulk);
+			if (n < 0)
+				return n;
+		}
 
-		n = ioctl(qdl->fd, USBDEVFS_BULK, &bulk);
-		if (n < 0)
-			return n;
 	}
-
 	return count;
 }
 
@@ -398,7 +418,7 @@ static void print_usage(void)
 {
 	extern const char *__progname;
 	fprintf(stderr,
-		"%s [--debug] [--storage <emmc|nand|ufs>] [--finalize-provisioning] [--include <PATH>] <prog.mbn> [<program> <patch> ...]\n",
+		"%s [--debug] [--storage <emmc|nand|ufs>] [--finalize-provisioning] [--platform <plat>] [--include <PATH>] <prog.mbn> [<program> <patch> ...]\n",
 		__progname);
 }
 
@@ -415,6 +435,7 @@ int main(int argc, char **argv)
 
 	static struct option options[] = {
 		{"debug", no_argument, 0, 'd'},
+		{"platform",required_argument, 0, 'p'},
 		{"include", required_argument, 0, 'i'},
 		{"finalize-provisioning", no_argument, 0, 'l'},
 		{"storage", required_argument, 0, 's'},
@@ -425,6 +446,9 @@ int main(int argc, char **argv)
 		switch (opt) {
 		case 'd':
 			qdl_debug = true;
+			break;
+		case 'p':
+			plat = optarg;
 			break;
 		case 'i':
 			incdir = optarg;

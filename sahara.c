@@ -135,7 +135,6 @@ out:
 static void sahara_read(struct qdl_device *qdl, struct sahara_pkt *pkt, int prog_fd)
 {
 	int ret;
-
 	assert(pkt->length == 0x14);
 
 	printf("READ image: %d offset: 0x%x length: 0x%x\n",

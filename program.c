@@ -57,8 +57,14 @@ static int load_erase_tag(xmlNode *node, bool is_nand)
 	program->is_nand = true;
 	program->is_erase = true;
 
-	program->pages_per_block = attr_as_unsigned(node, "PAGES_PER_BLOCK", &errors);
-	program->sector_size = attr_as_unsigned(node, "SECTOR_SIZE_IN_BYTES", &errors);
+	if (!strcmp((char *)node->properties->name, "PAGES_PER_BLOCK")) {
+                 program->pages_per_block = attr_as_unsigned(node, "PAGES_PER_BLOCK", &errors);
+        }
+
+        if (!strcmp((char *)node->properties->name, "SECTOR_SIZE_IN_BYTES")) {              
+		 program->sector_size = attr_as_unsigned(node, "SECTOR_SIZE_IN_BYTES", &errors);
+        }
+
 	program->num_sectors = attr_as_unsigned(node, "num_partition_sectors", &errors);
 	program->start_sector = attr_as_string(node, "start_sector", &errors);
 
@@ -90,14 +96,18 @@ static int load_program_tag(xmlNode *node, bool is_nand)
 
 	program->sector_size = attr_as_unsigned(node, "SECTOR_SIZE_IN_BYTES", &errors);
 	program->filename = attr_as_string(node, "filename", &errors);
-	program->label = attr_as_string(node, "label", &errors);
+	if (!strcmp((char *)node->properties->name, "label")) {
+		program->label = attr_as_string(node, "label", &errors);
+	}
 	program->num_sectors = attr_as_unsigned(node, "num_partition_sectors", &errors);
 	program->partition = attr_as_unsigned(node, "physical_partition_number", &errors);
 	program->start_sector = attr_as_string(node, "start_sector", &errors);
 
 	if (is_nand) {
 		program->pages_per_block = attr_as_unsigned(node, "PAGES_PER_BLOCK", &errors);
-		program->last_sector = attr_as_unsigned(node, "last_sector", &errors);
+		if (!strcmp((char *)node->properties->name, "last_sector")) {
+		        program->last_sector = attr_as_unsigned(node, "last_sector", &errors);
+        	}
 	} else {
 		program->file_offset = attr_as_unsigned(node, "file_sector_offset", &errors);
 	}
