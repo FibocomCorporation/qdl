@@ -361,7 +361,7 @@ int qdl_write(struct qdl_device *qdl, const void *buf, size_t len)
 	size_t len_orig = len;
 	int n;
 
-	if (!strcmp(plat,"NL668")) {
+	if (!strcmp(plat , "NL668")) {
 		if(len == 0) {
 			bulk.ep = qdl->out_ep;
 			bulk.len = 0;
@@ -374,8 +374,9 @@ int qdl_write(struct qdl_device *qdl, const void *buf, size_t len)
 					n, errno, strerror(errno));
 				return -1;
 			}
+
 			return 0;
-		}
+	  	}
 	}
 
 	while(len > 0) {
@@ -398,7 +399,7 @@ int qdl_write(struct qdl_device *qdl, const void *buf, size_t len)
 		data += xfer;
 	}
 		
-	if (strcmp(plat,"NL668")) {
+	if (strcmp(plat, "NL668")) {
 		if (len_orig % qdl->out_maxpktsize == 0) {
 			bulk.ep = qdl->out_ep;
 			bulk.len = 0;
@@ -411,6 +412,7 @@ int qdl_write(struct qdl_device *qdl, const void *buf, size_t len)
 		}
 
 	}
+
 	return count;
 }
 
@@ -435,7 +437,7 @@ int main(int argc, char **argv)
 
 	static struct option options[] = {
 		{"debug", no_argument, 0, 'd'},
-		{"platform",required_argument, 0, 'p'},
+		{"platform", required_argument, 0, 'p'},
 		{"include", required_argument, 0, 'i'},
 		{"finalize-provisioning", no_argument, 0, 'l'},
 		{"storage", required_argument, 0, 's'},

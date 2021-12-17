@@ -61,9 +61,9 @@ static int load_erase_tag(xmlNode *node, bool is_nand)
                  program->pages_per_block = attr_as_unsigned(node, "PAGES_PER_BLOCK", &errors);
         }
 
-        if (!strcmp((char *)node->properties->name, "SECTOR_SIZE_IN_BYTES")) {              
-		 program->sector_size = attr_as_unsigned(node, "SECTOR_SIZE_IN_BYTES", &errors);
-        }
+	if (!strcmp((char *)node->properties->name, "SECTOR_SIZE_IN_BYTES")) {              
+		program->sector_size = attr_as_unsigned(node, "SECTOR_SIZE_IN_BYTES", &errors);
+	}
 
 	program->num_sectors = attr_as_unsigned(node, "num_partition_sectors", &errors);
 	program->start_sector = attr_as_string(node, "start_sector", &errors);
@@ -107,7 +107,7 @@ static int load_program_tag(xmlNode *node, bool is_nand)
 		program->pages_per_block = attr_as_unsigned(node, "PAGES_PER_BLOCK", &errors);
 		if (!strcmp((char *)node->properties->name, "last_sector")) {
 		        program->last_sector = attr_as_unsigned(node, "last_sector", &errors);
-        	}
+		}
 	} else {
 		program->file_offset = attr_as_unsigned(node, "file_sector_offset", &errors);
 	}
